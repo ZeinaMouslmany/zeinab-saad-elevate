@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Swords, Dumbbell, Users } from "lucide-react";
+import { Swords, Dumbbell, Globe } from "lucide-react";
 
 const services = [
   {
@@ -19,11 +19,11 @@ const services = [
     features: ["Custom Programs", "Progressive Overload", "Body Transformation"],
   },
   {
-    icon: Users,
-    title: "Workshops & Groups",
+    icon: Globe,
+    title: "Programs",
     description:
-      "Dynamic group sessions and specialized workshops that bring the energy of Fight Do to teams and communities. Perfect for corporate events, fitness groups, and special occasions.",
-    features: ["Team Building", "Corporate Events", "Specialized Sessions"],
+      "Flexible remote coaching that combines Fight Do energy and structured strength training. Includes progress plans, and on-demand workouts so you can train anywhere.",
+    features: [ "Personalized Plans", "On-Demand Workouts"],
   },
 ];
 

@@ -30,6 +30,7 @@ const AboutSection = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
             </div>
+
             {/* Decorative accent */}
             <div className="absolute -bottom-6 -right-6 -z-10 h-full w-full rounded-lg bg-gradient-accent opacity-20" />
           </motion.div>
@@ -65,47 +66,29 @@ const AboutSection = () => {
               className="space-y-4 text-muted-foreground"
             >
               <p className="text-lg leading-relaxed">
-                As a certified <span className="text-primary font-medium">Fight Do coach</span>, I specialize in empowering individuals through
-                high-energy martial arts-inspired fitness. My passion lies in helping you
-                discover your inner strength while building physical power.
+                As a certified{" "}
+                <span className="font-medium text-primary">Fight Do coach</span>, I
+                specialize in empowering individuals through high-energy martial
+                arts-inspired fitness. My passion lies in helping you discover your
+                inner strength while building physical power.
               </p>
-              <p className="text-lg leading-relaxed">
-                Beyond Fight Do, I offer comprehensive <span className="text-primary font-medium">strength and weight training</span> programs
-                tailored to your goals. Whether you're looking to build muscle, increase
-                endurance, or transform your physique—I'm here to guide your journey.
-              </p>
-              <p className="text-lg leading-relaxed">
-                Through workshops and group sessions, I've had the privilege of coaching
-                hundreds of clients, from beginners to advanced athletes. My approach
-                combines technical precision with motivational coaching to unlock your
-                full potential.
-              </p>
-            </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.7 }}
-              className="mt-8 flex gap-8"
-            >
-              <div className="text-center">
-                <span className="block font-display text-3xl font-bold text-primary">
-                  500+
-                </span>
-                <span className="text-sm text-muted-foreground">Clients Trained</span>
-              </div>
-              <div className="text-center">
-                <span className="block font-display text-3xl font-bold text-primary">
-                  8+
-                </span>
-                <span className="text-sm text-muted-foreground">Years Experience</span>
-              </div>
-              <div className="text-center">
-                <span className="block font-display text-3xl font-bold text-primary">
-                  50+
-                </span>
-                <span className="text-sm text-muted-foreground">Workshops</span>
-              </div>
+              <p className="text-lg leading-relaxed">
+                Beyond Fight Do, I offer comprehensive{" "}
+                <span className="font-medium text-primary">
+                  strength and weight training
+                </span>{" "}
+                programs tailored to your goals. Whether you're looking to build
+                muscle, increase endurance, or transform your physique—I’m here to
+                guide your journey.
+              </p>
+
+              <p className="text-lg leading-relaxed">
+                Through workshops and group sessions, I’ve had the privilege of
+                coaching hundreds of clients, from beginners to advanced athletes.
+                My approach combines technical precision with motivational coaching
+                to unlock your full potential.
+              </p>
             </motion.div>
           </motion.div>
         </div>
