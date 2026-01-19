@@ -91,8 +91,8 @@ class VideoEditorApi {
 
     const token = sessionStorage.getItem('zeinab-admin-token');
     
-    const baseUrl = (API_BASE_URL || '').replace(/\/$/, '');
-    const response = await fetch(`${baseUrl}/api/upload/image`, {
+    const uploadBase = (API_BASE_URL || '').replace(/\/$/, '');
+    const response = await fetch(`${uploadBase}/upload/image`, {
       method: 'POST',
       headers: token ? {
         'Authorization': `Bearer ${token}`,
@@ -115,8 +115,8 @@ class VideoEditorApi {
 
     const token = sessionStorage.getItem('zeinab-admin-token');
     
-    const baseUrl = (API_BASE_URL || '').replace(/\/$/, '');
-    const response = await fetch(`${baseUrl}/api/upload/video`, {
+    const uploadBase = (API_BASE_URL || '').replace(/\/$/, '');
+    const response = await fetch(`${uploadBase}/upload/video`, {
       method: 'POST',
       headers: token ? {
         'Authorization': `Bearer ${token}`,
