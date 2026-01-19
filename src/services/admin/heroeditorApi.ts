@@ -1,4 +1,4 @@
-import { apiService } from '../api';
+import { apiService, API_BASE_URL } from '../api';
 import { HeroContent } from '@/types/content';
 
 interface RawHeroResponse {
@@ -58,7 +58,8 @@ class HeroEditorApi {
 
     const token = sessionStorage.getItem('zeinab-admin-token');
     
-    const response = await fetch('http://localhost:5000/api/upload/image', {
+    const uploadBase = (API_BASE_URL || '').replace(/\/$/, '');
+    const response = await fetch(`${uploadBase}/upload/image`, {
       method: 'POST',
       headers: token ? {
         'Authorization': `Bearer ${token}`,
