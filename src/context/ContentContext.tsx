@@ -51,13 +51,7 @@ const defaultContent: SiteContent = {
       enabled: true,
     },
   ],
-  experiences: [
-    { id: "1", year: "2016", title: "The Beginning", description: "Started my fitness journey, discovering a passion for martial arts and high-intensity training that would shape my career." },
-    { id: "2", year: "2018", title: "Fight Do Certification", description: "Obtained official Fight Do coaching certification, becoming one of the first certified coaches in the region." },
-    { id: "3", year: "2020", title: "Strength Coach Certification", description: "Expanded expertise with advanced strength and conditioning certifications, adding weight training to my coaching repertoire." },
-    { id: "4", year: "2022", title: "Workshop Leader", description: "Launched a series of successful workshops, training hundreds of participants and building a strong community of fitness enthusiasts." },
-    { id: "5", year: "2024", title: "Elite Coach Status", description: "Recognized as an elite-level coach, continuing to inspire and transform lives through Fight Do and strength training." },
-  ],
+  experiences: [],
   videos: [
     { id: "1", title: "Fight Do Basics", thumbnail: "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=600&h=400&fit=crop", videoUrl: "", duration: "3:45" },
     { id: "2", title: "Kickboxing Combos", thumbnail: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop", videoUrl: "", duration: "5:20" },

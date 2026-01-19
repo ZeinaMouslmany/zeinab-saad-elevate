@@ -9,23 +9,36 @@ import { toast } from "@/hooks/use-toast";
 const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (login(password)) {
+    setIsLoading(true);
+    try {
+      const success = await login(password);
+      if (success) {
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully logged in.",
+        });
+      } else {
+        toast({
+          title: "Access denied",
+          description: "Incorrect password. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Welcome back!",
-        description: "You've successfully logged in.",
-      });
-    } else {
-      toast({
-        title: "Access denied",
-        description: "Incorrect password. Please try again.",
+        title: "Error",
+        description: "An error occurred during login. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
+      setPassword("");
     }
-    setPassword("");
   };
 
   return (
@@ -57,18 +70,20 @@ const AdminLogin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pr-12 bg-background border-border"
+                disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                disabled={isLoading}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
 
-            <Button type="submit" className="w-full" variant="hero">
-              Login to Dashboard
+            <Button type="submit" className="w-full" variant="hero" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login to Dashboard"}
             </Button>
           </form>
 

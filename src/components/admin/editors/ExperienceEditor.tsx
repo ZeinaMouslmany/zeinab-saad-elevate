@@ -4,42 +4,83 @@ import { Save, Plus, Trash2, GripVertical, ArrowUp, ArrowDown } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useContent } from "@/context/ContentContext";
 import { toast } from "@/hooks/use-toast";
 import { Experience } from "@/types/content";
+import { experiencesApi } from "@/services/admin/experiencesApi";
 
 const ExperienceEditor = () => {
-  const { content, updateSection } = useContent();
-  const [experiences, setExperiences] = useState<Experience[]>(content.experiences);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchExperiences = async () => {
+    try {
+      const data = await experiencesApi.getAllExperiences();
+      setExperiences(data);
+    } catch (error) {
+      console.error('Failed to fetch experiences:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load experiences. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setExperiences(content.experiences);
-  }, [content.experiences]);
+    fetchExperiences();
+  }, []);
 
-  const handleSave = () => {
-    updateSection("experiences", experiences);
-    toast({
-      title: "Experience timeline updated!",
-      description: "Your changes have been saved successfully.",
-    });
+  const handleSave = async () => {
+    try {
+      const savedExperiences = await experiencesApi.updateExperiences(experiences);
+      setExperiences(savedExperiences);
+      toast({
+        title: "Experience timeline updated!",
+        description: "Your changes have been saved successfully.",
+      });
+    } catch (error) {
+      console.error('Failed to save experiences:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save experiences. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const addExperience = () => {
     const newExp: Experience = {
-      id: Date.now().toString(),
-      year: new Date().getFullYear().toString(),
       title: "New Milestone",
       description: "",
     };
     setExperiences([...experiences, newExp]);
   };
 
-  const updateExperience = (id: string, updates: Partial<Experience>) => {
-    setExperiences(experiences.map((e) => (e.id === id ? { ...e, ...updates } : e)));
+  const updateExperience = (index: number, updates: Partial<Experience>) => {
+    setExperiences(experiences.map((e, i) => (i === index ? { ...e, ...updates } : e)));
   };
 
-  const removeExperience = (id: string) => {
-    setExperiences(experiences.filter((e) => e.id !== id));
+  const removeExperience = async (index: number) => {
+    try {
+      const experienceToDelete = experiences[index];
+      if (experienceToDelete.id) {
+        await experiencesApi.deleteExperience(experienceToDelete.id);
+      }
+      setExperiences(experiences.filter((_, i) => i !== index));
+      toast({
+        title: "Experience deleted",
+        description: "The experience has been removed successfully.",
+      });
+    } catch (error) {
+      console.error('Failed to delete experience:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete experience. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const moveExperience = (index: number, direction: "up" | "down") => {
@@ -81,7 +122,7 @@ const ExperienceEditor = () => {
       <div className="space-y-4">
         {experiences.map((exp, index) => (
           <div
-            key={exp.id}
+            key={exp.id || `new-${index}`}
             className="bg-card rounded-xl p-6 border border-border"
           >
             <div className="flex items-start gap-4">
@@ -105,24 +146,16 @@ const ExperienceEditor = () => {
 
               <div className="flex-1 space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-24">
-                    <Input
-                      value={exp.year}
-                      onChange={(e) => updateExperience(exp.id, { year: e.target.value })}
-                      placeholder="Year"
-                      className="bg-background text-center font-display text-lg font-bold text-primary"
-                    />
-                  </div>
                   <Input
                     value={exp.title}
-                    onChange={(e) => updateExperience(exp.id, { title: e.target.value })}
+                    onChange={(e) => updateExperience(index, { title: e.target.value })}
                     placeholder="Milestone title"
                     className="bg-background flex-1 font-medium"
                   />
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => removeExperience(exp.id)}
+                    onClick={() => removeExperience(index)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -130,7 +163,7 @@ const ExperienceEditor = () => {
 
                 <Textarea
                   value={exp.description}
-                  onChange={(e) => updateExperience(exp.id, { description: e.target.value })}
+                  onChange={(e) => updateExperience(index, { description: e.target.value })}
                   placeholder="Describe this milestone..."
                   rows={2}
                   className="bg-background"

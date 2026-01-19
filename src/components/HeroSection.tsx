@@ -1,19 +1,47 @@
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroBackground from "@/assets/hero-background.jpg";
+import { useEffect, useState } from "react";
+import { publicHeroApi } from "@/services/heroApi";
+import { HeroContent } from "@/types/content";
+
 
 const HeroSection = () => {
+  const [hero, setHero] = useState<HeroContent>({
+    tagline: "",
+    headline: "",
+    subtitle: "",
+    primaryButtonText: "",
+    secondaryButtonText: "",
+    backgroundImageUrl: "",
+  });
+
+  useEffect(() => {
+    const fetchHero = async () => {
+      try {
+        const data = await publicHeroApi.getHero();
+        setHero(data);
+      } catch (err) {
+        console.error("Failed to fetch Hero", err);
+      }
+    };
+
+    fetchHero();
+  }, []);
+
   const scrollToAbout = () => {
     document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Use backgroundImageUrl if available, otherwise fallback to default
+  const backgroundImage = hero.backgroundImageUrl ;
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img
-          src={heroBackground}
+          src={backgroundImage}
           alt="Fight Do Training"
           className="h-full w-full object-cover"
         />
@@ -23,49 +51,60 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="mb-4"
-        >
-          <span className="text-sm font-medium uppercase tracking-[0.3em] text-primary">
-            Elite Fight Do Coach
-          </span>
-        </motion.div>
+        {hero.tagline && (
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="mb-4"
+          >
+            <span className="text-sm font-medium uppercase tracking-[0.3em] text-primary">
+              {hero.tagline}
+            </span>
+          </motion.div>
+        )}
 
-        <motion.h1
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-          className="mb-6 font-display text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl lg:text-8xl"
-        >
-          Zeinab Saad
-        </motion.h1>
+        {hero.headline && (
+          <motion.h1
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+            className="mb-6 font-display text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl lg:text-8xl"
+          >
+            {hero.headline}
+          </motion.h1>
+        )}
 
-        <motion.p
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
-          className="mb-10 max-w-2xl text-lg text-muted-foreground md:text-xl"
-        >
-          Unleash your power through Fight Do training. Transform your body,
-          strengthen your mind, and discover the fighter within.
-        </motion.p>
+        {hero.subtitle && (
+          <motion.p
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+            className="mb-10 max-w-2xl text-lg text-muted-foreground md:text-xl"
+          >
+            {hero.subtitle}
+          </motion.p>
+        )}
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
-          className="flex flex-col gap-4 sm:flex-row"
-        >
-          <Button variant="hero" size="xl" onClick={scrollToAbout}>
-            Start Your Journey
-          </Button>
-          <Button variant="heroOutline" size="xl" onClick={scrollToAbout}>
-            Learn More
-          </Button>
-        </motion.div>
+        {(hero.primaryButtonText || hero.secondaryButtonText) && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
+            className="flex flex-col gap-4 sm:flex-row"
+          >
+            {hero.primaryButtonText && (
+              <Button variant="hero" size="xl" onClick={scrollToAbout}>
+                {hero.primaryButtonText}
+              </Button>
+            )}
+            {hero.secondaryButtonText && (
+              <Button variant="heroOutline" size="xl" onClick={scrollToAbout}>
+                {hero.secondaryButtonText}
+              </Button>
+            )}
+          </motion.div>
+        )}
       </div>
 
       {/* Scroll Indicator */}

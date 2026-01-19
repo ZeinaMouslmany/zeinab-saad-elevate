@@ -1,45 +1,77 @@
 import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import { Play, X } from "lucide-react";
-
-const videos = [
-  {
-    id: 1,
-    title: "Fight Do Basics",
-    thumbnail: "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=600&h=400&fit=crop",
-    duration: "3:45",
-  },
-  {
-    id: 2,
-    title: "Kickboxing Combos",
-    thumbnail: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop",
-    duration: "5:20",
-  },
-  {
-    id: 3,
-    title: "Strength Circuit",
-    thumbnail: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop",
-    duration: "4:15",
-  },
-  {
-    id: 4,
-    title: "Group Workshop",
-    thumbnail: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=400&fit=crop",
-    duration: "6:30",
-  },
-];
+import { publicVideoApi } from "@/services/videoApi";
+import { Video } from "@/types/content";
 
 const VideoGallerySection = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const data = await publicVideoApi.getVideos();
+        setVideos(data || []);
+      } catch (err) {
+        console.error("Failed to fetch Videos", err);
+        setVideos([]);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  // Helper function to get YouTube embed URL
+  const getYouTubeEmbedUrl = (url: string): string | null => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11
+      ? `https://www.youtube.com/embed/${match[2]}`
+      : null;
+  };
+
+  // Helper function to get Vimeo embed URL
+  const getVimeoEmbedUrl = (url: string): string | null => {
+    const regExp = /(?:vimeo)\.com.*(?:videos|video|channels|)\/([\d]+)/i;
+    const match = url.match(regExp);
+    return match ? `https://player.vimeo.com/video/${match[1]}` : null;
+  };
+
+  // Get embed URL for video
+  const getVideoEmbedUrl = (videoUrl: string): string | null => {
+    if (!videoUrl) return null;
+    
+    // Check if it's a YouTube URL
+    const youtubeEmbed = getYouTubeEmbedUrl(videoUrl);
+    if (youtubeEmbed) return youtubeEmbed;
+
+    // Check if it's a Vimeo URL
+    const vimeoEmbed = getVimeoEmbedUrl(videoUrl);
+    if (vimeoEmbed) return vimeoEmbed;
+
+    // Check if it's already an embed URL
+    if (videoUrl.includes('youtube.com/embed') || videoUrl.includes('player.vimeo.com')) {
+      return videoUrl;
+    }
+
+    // Check if it's a Cloudinary video URL (direct video)
+    if (videoUrl.includes('cloudinary.com') && videoUrl.includes('/video/')) {
+      return videoUrl;
+    }
+
+    // Return null if we can't determine the embed URL
+    return null;
+  };
+
+  if (!videos.length) {
+    return null; // Don't render section if no videos
+  }
 
   return (
     <section
       id="gallery"
       className="relative overflow-hidden bg-charcoal py-24 md:py-32"
-      ref={ref}
     >
       {/* Background accent */}
       <div className="absolute inset-0 opacity-20">
@@ -49,7 +81,8 @@ const VideoGallerySection = () => {
       <div className="container relative z-10 mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1, ease: "easeOut" }}
           className="mb-16 text-center"
         >
@@ -67,22 +100,29 @@ const VideoGallerySection = () => {
             <motion.div
               key={video.id}
               initial={{ opacity: 0, y: 80, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
               transition={{
                 duration: 1.2,
                 delay: 0.1 + index * 0.15,
                 ease: "easeOut",
               }}
               className="group relative cursor-pointer overflow-hidden rounded-xl"
-              onClick={() => setSelectedVideo(video.id)}
+              onClick={() => setSelectedVideo(video)}
             >
               {/* Thumbnail */}
               <div className="relative aspect-[3/4] overflow-hidden">
-                <img
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+                {video.thumbnail ? (
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-muted flex items-center justify-center">
+                    <Play className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-background/50 transition-all duration-500 group-hover:bg-background/30" />
               </div>
 
@@ -98,9 +138,11 @@ const VideoGallerySection = () => {
                 <h3 className="font-display text-lg font-semibold text-foreground">
                   {video.title}
                 </h3>
-                <span className="text-sm text-muted-foreground">
-                  {video.duration}
-                </span>
+                {video.duration && (
+                  <span className="text-sm text-muted-foreground">
+                    {video.duration}
+                  </span>
+                )}
               </div>
             </motion.div>
           ))}
@@ -131,18 +173,42 @@ const VideoGallerySection = () => {
               <X className="h-5 w-5" />
             </button>
 
-            {/* Video placeholder */}
-            <div className="flex h-full w-full items-center justify-center bg-muted">
-              <div className="text-center">
-                <Play className="mx-auto mb-4 h-16 w-16 text-primary" />
-                <p className="text-muted-foreground">
-                  Video player placeholder
-                </p>
-                <p className="text-sm text-muted-foreground/60">
-                  Replace with actual video content
-                </p>
+            {/* Video Player */}
+            {selectedVideo.videoUrl ? (
+              (() => {
+                const embedUrl = getVideoEmbedUrl(selectedVideo.videoUrl);
+                if (embedUrl) {
+                  // YouTube, Vimeo, or Cloudinary embed
+                  return (
+                    <iframe
+                      src={embedUrl}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                  );
+                } else {
+                  // Direct video URL (Cloudinary or other)
+                  return (
+                    <video
+                      src={selectedVideo.videoUrl}
+                      controls
+                      className="w-full h-full"
+                      autoPlay
+                    />
+                  );
+                }
+              })()
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-muted">
+                <div className="text-center">
+                  <Play className="mx-auto mb-4 h-16 w-16 text-primary" />
+                  <p className="text-muted-foreground">
+                    No video URL available
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </motion.div>
         </motion.div>
       )}

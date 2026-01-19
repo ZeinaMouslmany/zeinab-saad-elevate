@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useContent } from "@/context/ContentContext";
+import { servicesApi } from "@/services/admin/servicesApi";
 import { toast } from "@/hooks/use-toast";
 import { Service } from "@/types/content";
 
@@ -16,19 +16,44 @@ const iconOptions = [
 ];
 
 const ServicesEditor = () => {
-  const { content, updateSection } = useContent();
-  const [services, setServices] = useState<Service[]>(content.services);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setServices(content.services);
-  }, [content.services]);
+    const fetchServices = async () => {
+      try {
+        const data = await servicesApi.getAllServices();
+        setServices(data);
+      } catch (error) {
+        console.error('Failed to fetch services:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load services. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleSave = () => {
-    updateSection("services", services);
-    toast({
-      title: "Services updated!",
-      description: "Your changes have been saved successfully.",
-    });
+    fetchServices();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await servicesApi.updateServices(services);
+      toast({
+        title: "Services updated!",
+        description: "Your changes have been saved successfully.",
+      });
+    } catch (error) {
+      console.error('Failed to save services:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save services. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const addService = () => {
@@ -47,8 +72,22 @@ const ServicesEditor = () => {
     setServices(services.map((s) => (s.id === id ? { ...s, ...updates } : s)));
   };
 
-  const removeService = (id: string) => {
-    setServices(services.filter((s) => s.id !== id));
+  const removeService = async (id: string) => {
+    try {
+      await servicesApi.deleteService(id);
+      setServices(services.filter((s) => s.id !== id));
+      toast({
+        title: "Service deleted",
+        description: "The service has been removed successfully.",
+      });
+    } catch (error) {
+      console.error('Failed to delete service:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete service. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const updateFeature = (serviceId: string, index: number, value: string) => {

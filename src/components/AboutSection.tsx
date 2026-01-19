@@ -1,11 +1,43 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
-import coachPortrait from "@/assets/coach-portrait.jpg";
+import { useRef, useEffect, useState } from "react";
+import { publicAboutApi } from "@/services/aboutApi";
+import { AboutContent } from "@/types/content";
+
 
 const AboutSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [about, setAbout] = useState<AboutContent>({
+    name: "",
+    tagline: "",
+    bio: [],
+    stats: {
+      clientsTrained: "",
+      yearsExperience: "",
+      workshops: "",
+    },
+    profileImageUrl: "",
+    statsEnabled: true,
+  });
+
+  useEffect(() => {
+    const fetchAbout = async () => {
+      try {
+        const data = await publicAboutApi.getAbout();
+        setAbout(data);
+      } catch (err) {
+        console.error("Failed to fetch About", err);
+      }
+    };
+
+    fetchAbout();
+  }, []);
+
+  // Use profileImageUrl if available, otherwise fallback to default
+  const profileImage = about.profileImageUrl ;
+  const displayName = about.name ;
+  const displayTagline = about.tagline ;
 
   return (
     <section
@@ -24,8 +56,8 @@ const AboutSection = () => {
           >
             <div className="relative overflow-hidden rounded-lg shadow-elegant">
               <img
-                src={coachPortrait}
-                alt="Zeinab Saad - Fight Do Coach"
+                src={profileImage}
+                alt={`${displayName} - Fight Do Coach`}
                 className="h-auto w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
@@ -41,55 +73,86 @@ const AboutSection = () => {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
           >
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mb-4 inline-block text-sm font-medium uppercase tracking-[0.2em] text-primary"
-            >
-              About the Coach
-            </motion.span>
+            {displayTagline && (
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="mb-4 inline-block text-sm font-medium uppercase tracking-[0.2em] text-primary"
+              >
+                {displayTagline}
+              </motion.span>
+            )}
 
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.4 }}
-              className="mb-6 font-display text-4xl font-bold text-foreground md:text-5xl"
-            >
-              Zeinab Saad
-            </motion.h2>
+            {displayName && (
+              <motion.h2
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1, delay: 0.4 }}
+                className="mb-6 font-display text-4xl font-bold text-foreground md:text-5xl"
+              >
+                {displayName}
+              </motion.h2>
+            )}
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="space-y-4 text-muted-foreground"
-            >
-              <p className="text-lg leading-relaxed">
-                As a certified{" "}
-                <span className="font-medium text-primary">Fight Do coach</span>, I
-                specialize in empowering individuals through high-energy martial
-                arts-inspired fitness. My passion lies in helping you discover your
-                inner strength while building physical power.
-              </p>
+            {about.bio && about.bio.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="space-y-4 text-muted-foreground"
+              >
+                {about.bio.map((paragraph, index) => (
+                  <p key={index} className="text-lg leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))}
+              </motion.div>
+            )}
 
-              <p className="text-lg leading-relaxed">
-                Beyond Fight Do, I offer comprehensive{" "}
-                <span className="font-medium text-primary">
-                  strength and weight training
-                </span>{" "}
-                programs tailored to your goals. Whether you're looking to build
-                muscle, increase endurance, or transform your physique—I’m here to
-                guide your journey.
-              </p>
-
-              <p className="text-lg leading-relaxed">
-                Through workshops and group sessions, I’ve had the privilege of
-                coaching hundreds of clients, from beginners to advanced athletes.
-                My approach combines technical precision with motivational coaching
-                to unlock your full potential.
-              </p>
-            </motion.div>
+            {/* Stats */}
+            {about.statsEnabled &&
+              (about.stats.clientsTrained ||
+                about.stats.yearsExperience ||
+                about.stats.workshops) && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1, delay: 0.6 }}
+                className="mt-8 grid grid-cols-3 gap-6 border-t border-border pt-6"
+              >
+                {about.stats.clientsTrained && (
+                  <div>
+                    <div className="text-3xl font-bold text-primary">
+                      {about.stats.clientsTrained}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Clients Trained
+                    </div>
+                  </div>
+                )}
+                {about.stats.yearsExperience && (
+                  <div>
+                    <div className="text-3xl font-bold text-primary">
+                      {about.stats.yearsExperience}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Years Experience
+                    </div>
+                  </div>
+                )}
+                {about.stats.workshops && (
+                  <div>
+                    <div className="text-3xl font-bold text-primary">
+                      {about.stats.workshops}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Workshops
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>

@@ -1,44 +1,68 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { adminApi } from "@/services/admin/adminApi";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (password: string) => boolean;
+  login: (password: string) => Promise<boolean>;
   logout: () => void;
+  token: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Simple password - in production, this should be handled securely
-const ADMIN_PASSWORD = "fightdo2024";
 const AUTH_KEY = "zeinab-admin-auth";
+const TOKEN_KEY = "zeinab-admin-token";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem(AUTH_KEY) === "true";
   });
+  const [token, setToken] = useState<string | null>(() => {
+    return sessionStorage.getItem(TOKEN_KEY);
+  });
 
   useEffect(() => {
-    if (isAuthenticated) {
+    // Sync state to sessionStorage (one-way: state -> storage)
+    if (isAuthenticated && token) {
       sessionStorage.setItem(AUTH_KEY, "true");
+      sessionStorage.setItem(TOKEN_KEY, token);
     } else {
       sessionStorage.removeItem(AUTH_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, token]);
 
-  const login = (password: string): boolean => {
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      return true;
+  const login = async (password: string): Promise<boolean> => {
+    try {
+      const response = await adminApi.login(password);
+      if (response && response.token) {
+        // Store token immediately in sessionStorage
+        sessionStorage.setItem(TOKEN_KEY, response.token);
+        sessionStorage.setItem(AUTH_KEY, 'true');
+        // Then update state
+        setToken(response.token);
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login failed:', error);
+      // Clear any existing auth data on login failure
+      sessionStorage.removeItem(AUTH_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      setIsAuthenticated(false);
+      setToken(null);
+      return false;
     }
-    return false;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
+    setToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, token }}>
       {children}
     </AuthContext.Provider>
   );

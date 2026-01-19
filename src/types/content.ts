@@ -17,6 +17,8 @@ export interface AboutContent {
     workshops: string;
   };
   profileImageUrl: string;
+  // Controls whether the statistics section is shown on the public About section
+  statsEnabled: boolean;
 }
 
 export interface Service {
@@ -29,8 +31,7 @@ export interface Service {
 }
 
 export interface Experience {
-  id: string;
-  year: string;
+  id?: string;
   title: string;
   description: string;
 }
@@ -43,14 +44,29 @@ export interface Video {
   duration: string;
 }
 
+export type SocialIcon = 
+  | 'Instagram'
+  | 'Phone'
+  | 'Mail'
+  | 'Facebook'
+  | 'Twitter'
+  | 'LinkedIn'
+  | 'YouTube'
+  | 'TikTok'
+  | 'WhatsApp'
+  | 'MapPin'
+  | 'Globe';
+
+export interface SocialLink {
+  icon: SocialIcon;
+  label: string;
+  url: string;
+  displayText: string;
+}
+
 export interface ContactContent {
-  instagramUrl: string;
-  instagramHandle: string;
-  phone: string;
-  phoneDisplay: string;
   quote: string;
-  showInstagram: boolean;
-  showPhone: boolean;
+  socialLinks: SocialLink[];
 }
 
 export interface CTAContent {

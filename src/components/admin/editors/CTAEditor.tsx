@@ -4,25 +4,63 @@ import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useContent } from "@/context/ContentContext";
 import { toast } from "@/hooks/use-toast";
 import { CTAContent } from "@/types/content";
+import { ctaApi } from "@/services/admin/ctaApi";
 
 const CTAEditor = () => {
-  const { content, updateSection } = useContent();
-  const [form, setForm] = useState<CTAContent>(content.cta);
+  const [form, setForm] = useState<CTAContent>({
+    headline: "",
+    subtitle: "",
+    buttonText: "",
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setForm(content.cta);
-  }, [content.cta]);
+    const fetchCTA = async () => {
+      try {
+        setLoading(true);
+        const data = await ctaApi.getCTA();
+        setForm(data);
+      } catch (error) {
+        console.error("Failed to fetch CTA:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load CTA content. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleSave = () => {
-    updateSection("cta", form);
-    toast({
-      title: "Call to Action updated!",
-      description: "Your changes have been saved successfully.",
-    });
+    fetchCTA();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await ctaApi.updateCTA(form);
+      toast({
+        title: "Call to Action updated!",
+        description: "Your changes have been saved successfully.",
+      });
+    } catch (error) {
+      console.error("Failed to save CTA:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save CTA content. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">Loading CTA content...</p>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -56,6 +94,9 @@ const CTAEditor = () => {
             placeholder="e.g., Ready to Transform?"
             className="bg-background"
           />
+          <p className="mt-1 text-xs text-muted-foreground">
+            The main heading text. You can use HTML-like formatting with &lt;span className="text-gradient"&gt; for highlighted text.
+          </p>
         </div>
 
         <div>
@@ -69,6 +110,9 @@ const CTAEditor = () => {
             rows={3}
             className="bg-background"
           />
+          <p className="mt-1 text-xs text-muted-foreground">
+            The supporting text that appears below the headline.
+          </p>
         </div>
 
         <div>
@@ -81,18 +125,33 @@ const CTAEditor = () => {
             placeholder="e.g., Start Your Fight Do Journey"
             className="bg-background"
           />
+          <p className="mt-1 text-xs text-muted-foreground">
+            The text displayed on the call-to-action button.
+          </p>
         </div>
 
         {/* Preview */}
         <div className="pt-4 border-t border-border">
           <p className="text-sm text-muted-foreground mb-3">Preview</p>
           <div className="bg-background rounded-lg p-6 text-center">
-            <h3 className="font-display text-2xl font-bold text-foreground mb-2">
-              {form.headline || "Your Headline"}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              {form.subtitle || "Your subtitle message"}
-            </p>
+            {form.headline ? (
+              <h3 className="font-display text-2xl font-bold text-foreground mb-2">
+                {form.headline}
+              </h3>
+            ) : (
+              <h3 className="font-display text-2xl font-bold text-muted-foreground mb-2">
+                Your Headline
+              </h3>
+            )}
+            {form.subtitle ? (
+              <p className="text-muted-foreground mb-4">
+                {form.subtitle}
+              </p>
+            ) : (
+              <p className="text-muted-foreground mb-4 italic">
+                Your subtitle message
+              </p>
+            )}
             <Button variant="hero" className="pointer-events-none">
               {form.buttonText || "Button Text"}
             </Button>

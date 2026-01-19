@@ -1,7 +1,10 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef } from "react";
-import { Swords, Dumbbell, Globe } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { Swords, Dumbbell, Globe, Users } from "lucide-react";
+import { Service } from "@/types/content";
+import { publicServicesApi } from "@/services/servicesApi";
 
 const services = [
   {
@@ -30,6 +33,65 @@ const services = [
 const ServicesSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const data = await publicServicesApi.getServices();
+        setServices(data);
+      } catch (error) {
+        console.error('Failed to fetch services:', error);
+        // Fallback to default services if API fails
+        setServices([
+          {
+            id: "1",
+            icon: "Swords",
+            title: "Fight Do Coaching",
+            description: "High-energy martial arts-inspired fitness combining kickboxing, Muay Thai, and combat moves. Perfect for burning calories, building strength, and releasing stress through powerful movements.",
+            features: ["Personal Training", "Group Classes", "Technique Mastery"],
+            enabled: true,
+          },
+          {
+            id: "2",
+            icon: "Dumbbell",
+            title: "Strength Training",
+            description: "Customized weight training programs designed to build lean muscle, increase power, and sculpt your physique. From beginners to advanced lifters—tailored to your goals.",
+            features: ["Custom Programs", "Progressive Overload", "Body Transformation"],
+            enabled: true,
+          },
+          {
+            id: "3",
+            icon: "Globe",
+            title: "Programs",
+            description: "Flexible remote coaching that combines Fight Do energy and structured strength training. Includes progress plans, and on-demand workouts so you can train anywhere.",
+            features: ["Personalized Plans", "On-Demand Workouts"],
+            enabled: true,
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'Swords':
+        return Swords;
+      case 'Dumbbell':
+        return Dumbbell;
+      case 'Users':
+        return Users;
+      case 'Globe':
+        return Globe;
+      default:
+        return Swords;
+    }
+  };
 
   return (
     <section
@@ -73,7 +135,9 @@ const ServicesSection = () => {
             >
               {/* Icon */}
               <div className="mb-6 inline-flex rounded-lg bg-primary/10 p-4">
-                <service.icon className="h-8 w-8 text-primary" />
+                {React.createElement(getIconComponent(service.icon), {
+                  className: "h-8 w-8 text-primary"
+                })}
               </div>
 
               {/* Content */}
