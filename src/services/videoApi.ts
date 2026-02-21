@@ -3,10 +3,10 @@ import { Video } from '@/types/content';
 
 interface RawVideoResponse {
   _id: string;
-  title: string;
-  thumbnail: string;
+  title?: string;
+  thumbnail?: string;
   videoUrl: string;
-  duration: string;
+  duration?: string;
   order: number;
   createdAt: string;
   updatedAt: string;
@@ -23,10 +23,10 @@ class PublicVideoApi {
       
       return response.map(video => ({
         id: video._id || video.id || '',
-        title: video.title || '',
-        thumbnail: video.thumbnail || '',
+        title: video.title,
+        thumbnail: video.thumbnail,
         videoUrl: video.videoUrl || '',
-        duration: video.duration || '0:00',
+        duration: video.duration,
       }));
     } catch (error) {
       console.error('Failed to fetch Videos:', error);

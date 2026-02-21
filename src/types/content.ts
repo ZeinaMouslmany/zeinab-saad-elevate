@@ -38,10 +38,10 @@ export interface Experience {
 
 export interface Video {
   id: string;
-  title: string;
-  thumbnail: string;
+  title?: string;
+  thumbnail?: string;
   videoUrl: string;
-  duration: string;
+  duration?: string;
 }
 
 export type SocialIcon = 

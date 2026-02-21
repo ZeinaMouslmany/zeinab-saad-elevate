@@ -3,10 +3,10 @@ import { Video } from '@/types/content';
 
 interface RawVideoResponse {
   _id: string;
-  title: string;
-  thumbnail: string;
+  title?: string;
+  thumbnail?: string;
   videoUrl: string;
-  duration: string;
+  duration?: string;
   order: number;
   createdAt: string;
   updatedAt: string;
@@ -24,46 +24,46 @@ class VideoEditorApi {
     
     return response.map(video => ({
       id: video._id || '',
-      title: video.title || '',
-      thumbnail: video.thumbnail || '',
+      title: video.title,
+      thumbnail: video.thumbnail,
       videoUrl: video.videoUrl || '',
-      duration: video.duration || '0:00',
+      duration: video.duration,
     }));
   }
 
   async createVideo(data: Omit<Video, 'id'> & { order?: number }): Promise<Video> {
     const response = await apiService.post<RawVideoResponse>('/admin/videos', {
-      title: data.title,
-      thumbnail: data.thumbnail,
+      title: data.title || '',
+      thumbnail: data.thumbnail || '',
       videoUrl: data.videoUrl,
-      duration: data.duration,
+      duration: data.duration || '',
       order: data.order,
     });
 
     return {
       id: response._id || '',
-      title: response.title || '',
-      thumbnail: response.thumbnail || '',
+      title: response.title,
+      thumbnail: response.thumbnail,
       videoUrl: response.videoUrl || '',
-      duration: response.duration || '0:00',
+      duration: response.duration,
     };
   }
 
   async updateVideo(id: string, data: Partial<Video> & { order?: number }): Promise<Video> {
     const response = await apiService.put<RawVideoResponse>(`/admin/videos/${id}`, {
-      title: data.title,
-      thumbnail: data.thumbnail,
+      title: data.title !== undefined ? data.title : undefined,
+      thumbnail: data.thumbnail !== undefined ? data.thumbnail : undefined,
       videoUrl: data.videoUrl,
-      duration: data.duration,
+      duration: data.duration !== undefined ? data.duration : undefined,
       order: data.order,
     });
 
     return {
       id: response._id || '',
-      title: response.title || '',
-      thumbnail: response.thumbnail || '',
+      title: response.title,
+      thumbnail: response.thumbnail,
       videoUrl: response.videoUrl || '',
-      duration: response.duration || '0:00',
+      duration: response.duration,
     };
   }
 
@@ -78,10 +78,10 @@ class VideoEditorApi {
 
     return response.map(video => ({
       id: video._id || '',
-      title: video.title || '',
-      thumbnail: video.thumbnail || '',
+      title: video.title,
+      thumbnail: video.thumbnail,
       videoUrl: video.videoUrl || '',
-      duration: video.duration || '0:00',
+      duration: video.duration,
     }));
   }
 
