@@ -33,13 +33,28 @@ const HeroSection = () => {
     document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const scrollToContact = () => {
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   // Use backgroundImageUrl if available, otherwise fallback to default
   const backgroundImage = hero.backgroundImageUrl ;
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0">
+    <section className="relative w-full overflow-hidden md:min-h-screen">
+      {/* Mobile: in-flow image + overlays (like AboutSection) */}
+      <div className="relative md:hidden">
+        <img
+          src={backgroundImage}
+          alt="Fight Do Training"
+          className="w-full h-auto object-contain"
+        />
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <div className="absolute inset-0 bg-background/40" />
+      </div>
+
+      {/* Desktop: absolute full-bleed background */}
+      <div className="hidden md:block absolute inset-0 bg-background">
         <img
           src={backgroundImage}
           alt="Fight Do Training"
@@ -49,8 +64,8 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-background/40" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+      {/* Content: below image on mobile, centered overlay on md+ */}
+      <div className="relative z-10 flex flex-col items-center px-6 py-8 text-center md:absolute md:inset-0 md:justify-center md:py-0">
         {hero.tagline && (
           <motion.div
             initial={{ opacity: 0, y: 60 }}
@@ -94,7 +109,7 @@ const HeroSection = () => {
             className="flex flex-col gap-4 sm:flex-row"
           >
             {hero.primaryButtonText && (
-              <Button variant="hero" size="xl" onClick={scrollToAbout}>
+              <Button variant="hero" size="xl" onClick={scrollToContact}>
                 {hero.primaryButtonText}
               </Button>
             )}
@@ -107,12 +122,12 @@ const HeroSection = () => {
         )}
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator (desktop only) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 1.2 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 cursor-pointer"
+        className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 cursor-pointer md:block"
         onClick={scrollToAbout}
       >
         <motion.div
