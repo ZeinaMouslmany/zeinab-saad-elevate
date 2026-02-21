@@ -190,26 +190,30 @@ const VideoGallerySection = () => {
                         scale: isActive ? 1 : 0.95
                       }}
                       transition={{ duration: 0.5, ease: "easeOut" }}
-                      className="relative aspect-video w-full overflow-hidden rounded-xl bg-card shadow-elegant"
+                      className="relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-card shadow-elegant aspect-[4/5] min-h-[280px] md:aspect-auto md:h-[480px] lg:h-[600px] xl:h-[680px]"
                     >
                       {video.videoUrl ? (
                         embedUrl ? (
-                          // YouTube, Vimeo embed
-                          <iframe
-                            ref={(el) => handleVideoRef(index, el)}
-                            src={isActive ? embedUrl : undefined}
-                            className="h-full w-full"
-                            allowFullScreen
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            title={`Video ${index + 1}`}
-                          />
+                          // YouTube, Vimeo embed — full frame visible, letterboxing allowed
+                          <div className="flex h-full w-full min-w-0 min-h-0 items-center justify-center">
+                            <div className="aspect-video h-full min-h-0 min-w-0 max-h-full max-w-full w-full">
+                              <iframe
+                                ref={(el) => handleVideoRef(index, el)}
+                                src={isActive ? embedUrl : undefined}
+                                className="h-full w-full"
+                                allowFullScreen
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                title={`Video ${index + 1}`}
+                              />
+                            </div>
+                          </div>
                         ) : (
-                          // Direct video (Cloudinary or other)
+                          // Direct video (Cloudinary or other) — full frame visible, no crop
                           <video
                             ref={(el) => handleVideoRef(index, el)}
                             src={video.videoUrl}
                             controls
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-contain"
                             muted={!isActive}
                             playsInline
                             onLoadedMetadata={(e) => {
