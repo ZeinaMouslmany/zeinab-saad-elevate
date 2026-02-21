@@ -11,7 +11,7 @@ A modern, responsive React application for Zeinab Saad's professional coaching s
 - **TypeScript**: Full type safety and enhanced developer experience
 - **Performance**: Optimized with Vite build system and code splitting
 
-## Tech Stack
+## Tech Stack:
 
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
