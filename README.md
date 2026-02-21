@@ -79,7 +79,7 @@ zeinab-saad-elevate/
    VITE_API_BASE_URL=http://localhost:5000/api
    ```
 
-4. **Start the development server:**
+4. **Start the development server**
    ```bash
    npm run dev
    ```
