@@ -37,35 +37,25 @@ const HeroSection = () => {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Use backgroundImageUrl if available, otherwise fallback to default
-  const backgroundImage = hero.backgroundImageUrl ;
+  const backgroundImage = hero.backgroundImageUrl?.trim() ?? "";
 
   return (
-    <section className="relative w-full overflow-hidden md:min-h-screen">
-      {/* Mobile: in-flow image + overlays (like AboutSection) */}
-      <div className="relative md:hidden">
-        <img
-          src={backgroundImage}
-          alt="Fight Do Training"
-          className="w-full h-auto object-contain"
-        />
+    <section className="relative flex min-h-[70vh] w-full flex-col overflow-hidden sm:min-h-[80vh] md:min-h-screen">
+      {/* Background layer: absolute, with optional img and overlays */}
+      <div className="absolute inset-0 bg-background">
+        {backgroundImage && (
+          <img
+            src={backgroundImage}
+            alt="Fight Do Training"
+            className="h-full w-full object-cover object-center"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-hero" />
         <div className="absolute inset-0 bg-background/40" />
       </div>
 
-      {/* Desktop: absolute full-bleed background */}
-      <div className="hidden md:block absolute inset-0 bg-background">
-        <img
-          src={backgroundImage}
-          alt="Fight Do Training"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-hero" />
-        <div className="absolute inset-0 bg-background/40" />
-      </div>
-
-      {/* Content: below image on mobile, centered overlay on md+ */}
-      <div className="relative z-10 flex flex-col items-center px-6 py-8 text-center md:absolute md:inset-0 md:justify-center md:py-0">
+      {/* Content: always above background, centered */}
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-6 text-center">
         {hero.tagline && (
           <motion.div
             initial={{ opacity: 0, y: 60 }}
@@ -122,12 +112,12 @@ const HeroSection = () => {
         )}
       </div>
 
-      {/* Scroll Indicator (desktop only) */}
+      {/* Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 1.2 }}
-        className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 cursor-pointer md:block"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 cursor-pointer"
         onClick={scrollToAbout}
       >
         <motion.div
